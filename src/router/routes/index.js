@@ -5,19 +5,21 @@ import PagesRoutes from "./Pages"
 // import TablesRoutes from './Tables'
 // import ChartMapsRoutes from './ChartsMaps'
 import DashboardRoutes from "./Dashboards"
+import CustomRoutes from "./Custom"
 // import UiElementRoutes from './UiElements'
 // import ExtensionsRoutes from './Extensions'
 // import PageLayoutsRoutes from './PageLayouts'
 
 // ** Document title
-const TemplateTitle = "%s - Vuexy React Admin Template"
+const TemplateTitle = "%s - پارسیان"
 
 // ** Default Route
-const DefaultRoute = "/dashboard/ecommerce"
+const DefaultRoute = "/dashboard"
 
 // ** Merge Routes
 const Routes = [
 	...DashboardRoutes,
+	...CustomRoutes,
 	// ...AppRoutes,
 	...PagesRoutes,
 	// ...UiElementRoutes,
