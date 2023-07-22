@@ -9,13 +9,19 @@
 //     externalLink?: boolean
 // }
 
-import { ShoppingCart } from "react-feather"
+import { List, ShoppingCart } from "react-feather"
 
 export default [
 	{
-		id: "order",
+		id: "createOrder",
 		title: "ثبت سفارش",
 		icon: <ShoppingCart />,
-		navLink: "/orders",
+		navLink: "/orders/submit",
+	},
+	{
+		id: "order-list",
+		title: "لیست سفارشات",
+		icon: <List />,
+		navLink: "/orders/list",
 	},
 ]
