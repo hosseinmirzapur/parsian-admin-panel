@@ -12,7 +12,6 @@ import { getHomeRouteForLoggedInUser } from "@utils"
 import { Coffee } from "react-feather"
 import { AvForm, AvInput } from "availity-reactstrap-validation-safe"
 import {
-	Alert,
 	Row,
 	Col,
 	CardTitle,
@@ -23,8 +22,8 @@ import {
 	Button,
 } from "reactstrap"
 import Logo from "@src/assets/images/main-logo.png"
-
 import "@styles/base/pages/page-auth.scss"
+import server from "../../../utility/server"
 
 const ToastContent = ({ name, role }) => (
 	<Fragment>
@@ -45,34 +44,43 @@ const Login = (props) => {
 	const ability = useContext(AbilityContext)
 	const dispatch = useDispatch()
 	const history = useHistory()
-	const [email, setEmail] = useState("admin@demo.com")
-	const [password, setPassword] = useState("admin")
+	const [email, setEmail] = useState("")
+	const [password, setPassword] = useState("")
 
 	const illustration = skin === "dark" ? "login-v2-dark.svg" : "login-v2.svg",
 		source = require(`@src/assets/images/pages/${illustration}`).default
 
-	const handleSubmit = (event, errors) => {
+	const handleSubmit = async (event, errors) => {
 		if (errors && !errors.length) {
-			useJwt
-				.login({ email, password })
+			await server
+				.post("/auth/login", { username: email, password })
 				.then((res) => {
-					const data = {
-						...res.data.userData,
-						accessToken: res.data.accessToken,
-						refreshToken: res.data.refreshToken,
-					}
-					dispatch(handleLogin(data))
-					ability.update(res.data.userData.ability)
-					history.push(getHomeRouteForLoggedInUser(data.role))
-					toast.success(
-						<ToastContent
-							name={data.fullName || data.username || "John Doe"}
-							role={data.role || "admin"}
-						/>,
-						{ transition: Slide, hideProgressBar: true, autoClose: 2000 },
-					)
+					console.log(res.data)
 				})
-				.catch((err) => console.log(err))
+				.catch((err) => {
+					console.log(err)
+				})
+
+			// useJwt
+			// 	.login({ email, password })
+			// 	.then((res) => {
+			// 		const data = {
+			// 			...res.data.userData,
+			// 			accessToken: res.data.accessToken,
+			// 			refreshToken: res.data.refreshToken,
+			// 		}
+			// 		dispatch(handleLogin(data))
+			// 		ability.update(res.data.userData.ability)
+			// 		history.push(getHomeRouteForLoggedInUser(data.role))
+			// 		toast.success(
+			// 			<ToastContent
+			// 				name={data.fullName || data.username || "John Doe"}
+			// 				role={data.role || "admin"}
+			// 			/>,
+			// 			{ transition: Slide, hideProgressBar: true, autoClose: 2000 },
+			// 		)
+			// 	})
+			// 	.catch((err) => console.log(err))
 		}
 	}
 
@@ -96,9 +104,9 @@ const Login = (props) => {
 							به پنل ادمین پارسیان خوش آمدید 👋
 						</CardTitle>
 						<CardText className="mb-2">
-							جهت مدیریت وبسایت و مشتریان ابتدا وارد شوید
+							جهت مدیریت سفارشات ابتدا وارد شوید
 						</CardText>
-						<Alert color="primary">
+						{/* <Alert color="primary">
 							<div className="alert-body font-small-2">
 								<p>
 									<small className="mr-50">
@@ -113,7 +121,7 @@ const Login = (props) => {
 									</small>
 								</p>
 							</div>
-						</Alert>
+						</Alert> */}
 						<AvForm className="auth-login-form mt-2" onSubmit={handleSubmit}>
 							<FormGroup>
 								<Label className="form-label" for="login-email">
