@@ -91,7 +91,8 @@ const Login = (props) => {
 						{ transition: Slide, hideProgressBar: true, autoClose: 2000 },
 					)
 				})
-				.catch(() => {
+				.catch((err) => {
+					console.log(err)
 					toast.error(<ErrorToast />, {
 						transition: Slide,
 						hideProgressBar: true,
