@@ -86,13 +86,7 @@ const Router = () => {
 			resource = route.meta.resource ? route.meta.resource : null
 		}
 
-		if (
-			(!isUserLoggedIn() && route.meta === undefined) ||
-			(!isUserLoggedIn() &&
-				route.meta &&
-				!route.meta.authRoute &&
-				!route.meta.publicRoute)
-		) {
+		if (!isUserLoggedIn()) {
 			/**
 			 ** If user is not Logged in & route meta is undefined
 			 ** OR
