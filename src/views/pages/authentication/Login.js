@@ -79,9 +79,10 @@ const Login = (props) => {
 						accessToken: res.data.token,
 						refreshToken: res.data.token,
 					}
+					localStorage.setItem("token", res.data.token)
 					dispatch(handleLogin(data))
 					ability.update(res.data.admin.Role)
-					history.push(getHomeRouteForLoggedInUser(data.Role))
+					history.push("/dashboard")
 					toast.success(
 						<ToastContent
 							name={data.fullName || data.username || "John Doe"}
