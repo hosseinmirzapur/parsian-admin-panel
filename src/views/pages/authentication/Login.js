@@ -39,6 +39,25 @@ const ToastContent = ({ name, role }) => (
 	</Fragment>
 )
 
+const ErrorToast = () => {
+	return (
+		<div
+			className="d-flex"
+			style={{
+				gap: "10px",
+			}}>
+			<div className="toastify-header">
+				<div className="title-wrapper">
+					<Avatar size="sm" color="danger" icon={<Coffee size={12} />} />
+				</div>
+			</div>
+			<div className="toastify-body">
+				<span>خطایی رخ داده است</span>
+			</div>
+		</div>
+	)
+}
+
 const Login = (props) => {
 	const [skin, setSkin] = useSkin()
 	const ability = useContext(AbilityContext)
@@ -55,10 +74,28 @@ const Login = (props) => {
 			await server
 				.post("/auth/login", { username: email, password })
 				.then((res) => {
-					console.log(res.data)
+					const data = {
+						...res.data.admin,
+						accessToken: res.data.token,
+						refreshToken: res.data.token,
+					}
+					dispatch(handleLogin(data))
+					ability.update(res.data.admin.Role)
+					history.push(getHomeRouteForLoggedInUser(data.Role))
+					toast.success(
+						<ToastContent
+							name={data.fullName || data.username || "John Doe"}
+							role={data.role || "admin"}
+						/>,
+						{ transition: Slide, hideProgressBar: true, autoClose: 2000 },
+					)
 				})
-				.catch((err) => {
-					console.log(err)
+				.catch(() => {
+					toast.error(<ErrorToast />, {
+						transition: Slide,
+						hideProgressBar: true,
+						autoClose: 20000,
+					})
 				})
 
 			// useJwt
