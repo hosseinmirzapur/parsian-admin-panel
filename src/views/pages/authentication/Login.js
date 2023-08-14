@@ -81,13 +81,9 @@ const Login = (props) => {
 					}
 					localStorage.setItem("token", res.data.token)
 					dispatch(handleLogin(data))
-					ability.update(res.data.admin.Role)
 					history.push("/dashboard")
 					toast.success(
-						<ToastContent
-							name={data.fullName || data.username || "John Doe"}
-							role={data.role || "admin"}
-						/>,
+						<ToastContent name={data.Username} role={data.Role} />,
 						{ transition: Slide, hideProgressBar: true, autoClose: 2000 },
 					)
 				})
