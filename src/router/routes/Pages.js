@@ -6,9 +6,6 @@ const PagesRoutes = [
 		path: "/login",
 		component: lazy(() => import("../../views/pages/authentication/Login")),
 		layout: "BlankLayout",
-		meta: {
-			authRoute: true,
-		},
 	},
 	{
 		path: "/pages/profile",
@@ -22,25 +19,16 @@ const PagesRoutes = [
 		path: "/misc/not-authorized",
 		component: lazy(() => import("../../views/pages/misc/NotAuthorized")),
 		layout: "BlankLayout",
-		meta: {
-			publicRoute: true,
-		},
 	},
 	{
 		path: "/misc/maintenance",
 		component: lazy(() => import("../../views/pages/misc/Maintenance")),
 		layout: "BlankLayout",
-		meta: {
-			publicRoute: true,
-		},
 	},
 	{
 		path: "/misc/error",
 		component: lazy(() => import("../../views/pages/misc/Error")),
 		layout: "BlankLayout",
-		meta: {
-			publicRoute: true,
-		},
 	},
 ]
 
