@@ -1,14 +1,11 @@
-import { useState, useContext, Fragment } from "react"
+import { useState, Fragment } from "react"
 import Avatar from "@components/avatar"
 import { useSkin } from "@hooks/useSkin"
-import useJwt from "@src/auth/jwt/useJwt"
 import { useDispatch } from "react-redux"
 import { toast, Slide } from "react-toastify"
 import { handleLogin } from "@store/actions/auth"
-import { AbilityContext } from "@src/utility/context/Can"
 import { Link, useHistory } from "react-router-dom"
 import InputPasswordToggle from "@components/input-password-toggle"
-import { getHomeRouteForLoggedInUser } from "@utils"
 import { Coffee } from "react-feather"
 import { AvForm, AvInput } from "availity-reactstrap-validation-safe"
 import {
@@ -60,7 +57,6 @@ const ErrorToast = () => {
 
 const Login = (props) => {
 	const [skin, setSkin] = useSkin()
-	const ability = useContext(AbilityContext)
 	const dispatch = useDispatch()
 	const history = useHistory()
 	const [email, setEmail] = useState("")
@@ -95,27 +91,6 @@ const Login = (props) => {
 						autoClose: 20000,
 					})
 				})
-
-			// useJwt
-			// 	.login({ email, password })
-			// 	.then((res) => {
-			// 		const data = {
-			// 			...res.data.userData,
-			// 			accessToken: res.data.accessToken,
-			// 			refreshToken: res.data.refreshToken,
-			// 		}
-			// 		dispatch(handleLogin(data))
-			// 		ability.update(res.data.userData.ability)
-			// 		history.push(getHomeRouteForLoggedInUser(data.role))
-			// 		toast.success(
-			// 			<ToastContent
-			// 				name={data.fullName || data.username || "John Doe"}
-			// 				role={data.role || "admin"}
-			// 			/>,
-			// 			{ transition: Slide, hideProgressBar: true, autoClose: 2000 },
-			// 		)
-			// 	})
-			// 	.catch((err) => console.log(err))
 		}
 	}
 
@@ -141,22 +116,6 @@ const Login = (props) => {
 						<CardText className="mb-2">
 							جهت مدیریت سفارشات ابتدا وارد شوید
 						</CardText>
-						{/* <Alert color="primary">
-							<div className="alert-body font-small-2">
-								<p>
-									<small className="mr-50">
-										<span className="font-weight-bold">نام کاربری:</span>{" "}
-										admin@demo.com
-									</small>
-								</p>
-								<p>
-									<small className="mr-50">
-										<span className="font-weight-bold">رمز عبور: </span>
-										admin
-									</small>
-								</p>
-							</div>
-						</Alert> */}
 						<AvForm className="auth-login-form mt-2" onSubmit={handleSubmit}>
 							<FormGroup>
 								<Label className="form-label" for="login-email">

@@ -75,10 +75,6 @@ const Router = () => {
 	const FinalRoute = (props) => {
 		const route = props.route
 
-		if (!isUserLoggedIn()) {
-			return <Redirect to="/login" />
-		}
-		// ** If none of the above render component
 		return <route.component {...props} />
 	}
 
