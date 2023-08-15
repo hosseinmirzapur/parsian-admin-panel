@@ -1,10 +1,9 @@
 // ** React Imports
-import { Suspense, useContext, lazy } from "react"
+import { Suspense, lazy } from "react"
 
 // ** Utils
 import { isUserLoggedIn } from "@utils"
 import { useLayout } from "@hooks/useLayout"
-import { AbilityContext } from "@src/utility/context/Can"
 import { useRouterTransition } from "@hooks/useRouterTransition"
 
 // ** Custom Components
@@ -31,9 +30,6 @@ const Router = () => {
 	// ** Hooks
 	const [layout, setLayout] = useLayout()
 	const [transition, setTransition] = useRouterTransition()
-
-	// ** ACL Ability Context
-	const ability = useContext(AbilityContext)
 
 	// ** Default Layout
 	const DefaultLayout =
@@ -78,22 +74,8 @@ const Router = () => {
 	 */
 	const FinalRoute = (props) => {
 		const route = props.route
-		let action, resource
-
-		// ** Assign vars based on route meta
-		if (route.meta) {
-			action = route.meta.action ? route.meta.action : null
-			resource = route.meta.resource ? route.meta.resource : null
-		}
 
 		if (!isUserLoggedIn()) {
-			/**
-			 ** If user is not Logged in & route meta is undefined
-			 ** OR
-			 ** If user is not Logged in & route.meta.authRoute, !route.meta.publicRoute are undefined
-			 ** Then redirect user to login
-			 */
-
 			return <Redirect to="/login" />
 		}
 		// ** If none of the above render component

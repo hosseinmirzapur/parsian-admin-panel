@@ -1,20 +1,10 @@
-// ** React Imports
-// import { useContext } from "react"
-
 // ** Vertical Menu Components
 import VerticalNavMenuLink from "./VerticalNavMenuLink"
 import VerticalNavMenuGroup from "./VerticalNavMenuGroup"
 import VerticalNavMenuSectionHeader from "./VerticalNavMenuSectionHeader"
 
-// ** Ability Context
-// import { AbilityContext } from "@src/utility/context/Can"
-
 // ** Utils
-import {
-	resolveVerticalNavMenuItemComponent as resolveNavItemComponent,
-	// canViewMenuGroup,
-	// canViewMenuItem,
-} from "@layouts/utils"
+import { resolveVerticalNavMenuItemComponent as resolveNavItemComponent } from "@layouts/utils"
 
 const VerticalMenuNavItems = (props) => {
 	// ** Context
