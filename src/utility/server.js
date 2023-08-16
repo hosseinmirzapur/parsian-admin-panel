@@ -1,4 +1,5 @@
 import axios from "axios"
+import alert from "sweetalert2"
 
 const notAuthorized = () => {
 	return (
@@ -19,5 +20,39 @@ const server = axios.create({
 			: `Bearer ${localStorage.getItem("token")}`,
 	},
 })
+
+export const handleError = async (msg) => {
+	alert.fire({
+		icon: "error",
+		title: "خطا",
+		text: msg,
+		confirmButtonText: "متوجه شدم",
+		position: "center",
+		timer: 5000,
+		customClass: {
+			confirmButton: "btn btn-primary",
+		},
+		buttonsStyling: false,
+	})
+}
+
+export const handleSuccess = async (msg) => {
+	alert.fire({
+		icon: "success",
+		title: "موفق",
+		text: msg,
+		confirmButtonText: "متوجه شدم",
+		position: "center",
+		timer: 5000,
+		customClass: {
+			confirmButton: "btn btn-primary",
+		},
+		buttonsStyling: false,
+	})
+}
+
+export const showLoader = (show) => {
+	show ? alert.showLoading() : alert.close()
+}
 
 export default server

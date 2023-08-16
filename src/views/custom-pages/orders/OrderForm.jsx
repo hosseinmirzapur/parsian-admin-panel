@@ -1,49 +1,48 @@
 import { Formik, ErrorMessage } from "formik"
-import { Input, Button, Label } from "reactstrap"
+import { Input, Button, Label, Alert } from "reactstrap"
+import server, {
+	handleError,
+	handleSuccess,
+	showLoader,
+} from "../../../utility/server"
 
 const OrderForm = () => {
 	const initialValues = {
-		customerFullName: "",
-		customerMobile: "",
-		sampleName: "",
-		testType: "",
-		referredTestStandard: "",
-		samplePreparation: "",
+		phoneNumber: "",
+		customerName: "",
 	}
 
 	// ** Functions
 	const validationRules = (values) => {
 		const errors = {}
 
-		if (!values.customerFullName) {
-			errors.customerFullName = "پر کردن این فیلد الزامیست"
+		if (!values.customerName) {
+			errors.customerName = "پر کردن این فیلد الزامیست"
 		}
-		if (!values.customerMobile) {
-			errors.customerMobile = "پر کردن این فیلد الزامیست"
+		if (!values.phoneNumber) {
+			errors.phoneNumber = "پر کردن این فیلد الزامیست"
 		}
-		if (values.customerMobile.length < 11) {
-			errors.customerMobile = "شماره موبایل نامعتبر"
-		}
-		if (!values.sampleName) {
-			errors.sampleName = "پر کردن این فیلد الزامیست"
-		}
-		if (!values.testType) {
-			errors.testType = "پر کردن این فیلد الزامیست"
-		}
-		if (!values.referredTestStandard) {
-			errors.referredTestStandard = "پر کردن این فیلد الزامیست"
-		}
-		if (!values.samplePreparation) {
-			errors.samplePreparation = "پر کردن این فیلد الزامیست"
+		if (values.phoneNumber.length != 11) {
+			errors.phoneNumber = "شماره موبایل نامعتبر"
 		}
 		return errors
 	}
 
-	const handleParsianForm = (values, { setSubmitting }) => {
-		setTimeout(() => {
-			alert(JSON.stringify(values, null, 2))
-			setSubmitting(false)
-		}, 400)
+	const handleParsianForm = async (values, { setSubmitting }) => {
+		setSubmitting(true)
+		showLoader(true)
+		await server
+			.post("/order/create", {
+				phone_number: values.phoneNumber,
+				customer_name: values.customerName,
+			})
+			.then(async () => {
+				await handleSuccess("عملیات موفقیت آمیز بود")
+			})
+			.catch(async () => {
+				await handleError("خطایی رخ داده است")
+			})
+		setSubmitting(false)
 	}
 
 	return (
@@ -70,22 +69,24 @@ const OrderForm = () => {
 							}}>
 							<div
 								style={{
-									width: "80%",
+									width: "70%",
+									margin: "auto",
 									display: "flex",
 									flexDirection: "column",
 									gap: "40px",
-								}}>
+								}}
+								className="w-md-50">
 								<div>
 									<Label>نام مشتری</Label>
 									<Input
 										type="text"
-										name="customerFullName"
+										name="customerName"
 										onChange={handleChange}
-										value={values.customerFullName}
+										value={values.customerName}
 									/>
 									<ErrorMessage
 										className="text-danger"
-										name="customerFullName"
+										name="customerName"
 										component="small"
 									/>
 								</div>
@@ -93,84 +94,20 @@ const OrderForm = () => {
 									<Label>شماره تماس مشتری</Label>
 									<Input
 										type="text"
-										name="customerMobile"
+										name="phoneNumber"
 										onChange={handleChange}
-										value={values.customerMobile}
+										value={values.phoneNumber}
 									/>
 									<ErrorMessage
 										className="text-danger"
-										name="customerMobile"
-										component="small"
-									/>
-								</div>
-								<div>
-									<Label>نام قطعه</Label>
-									<Input
-										type="text"
-										name="sampleName"
-										onChange={handleChange}
-										value={values.sampleName}
-									/>
-									<ErrorMessage
-										className="text-danger"
-										name="sampleName"
-										component="small"
-									/>
-								</div>
-							</div>
-							<div
-								style={{
-									width: "80%",
-									display: "flex",
-									flexDirection: "column",
-									gap: "40px",
-								}}>
-								<div>
-									<Label>نوع آزمون</Label>
-									<Input
-										type="text"
-										name="testType"
-										onChange={handleChange}
-										value={values.testType}
-									/>
-									<ErrorMessage
-										className="text-danger"
-										name="testType"
-										component="small"
-									/>
-								</div>
-								<div>
-									<Label>استاندارد مرجع آزمون</Label>
-									<Input
-										type="text"
-										name="referredTestStandard"
-										onChange={handleChange}
-										value={values.referredTestStandard}
-									/>
-									<ErrorMessage
-										className="text-danger"
-										name="referredTestStandard"
-										component="small"
-									/>
-								</div>
-								<div>
-									<Label>آماده سازی نمونه</Label>
-									<Input
-										type="text"
-										name="samplePreparation"
-										onChange={handleChange}
-										value={values.samplePreparation}
-									/>
-									<ErrorMessage
-										className="text-danger"
-										name="samplePreparation"
+										name="phoneNumber"
 										component="small"
 									/>
 								</div>
 							</div>
 						</div>
 						<div
-							className="d-flex justify-content-center justify-content-md-start"
+							className="d-flex justify-content-center align-items-center"
 							style={{ marginTop: "40px", marginBottom: "20px" }}>
 							<Button
 								color="primary"
@@ -179,6 +116,15 @@ const OrderForm = () => {
 								onClick={handleSubmit}>
 								ثبت سفارش
 							</Button>
+						</div>
+
+						<div className="d-flex w-md-80 margin-auto justify-content-center align-items-center mt-5">
+							<Alert color="success" isOpen={true}>
+								<h5>
+									در صورت ثبت سفارش جدید، به قسمت لیست سفارشات رفته تا آیتم های
+									سفارش را اضافه کنید
+								</h5>
+							</Alert>
 						</div>
 					</div>
 				)}

@@ -1,4 +1,4 @@
-import { Eye, MoreVertical, Printer, RefreshCcw } from "react-feather"
+import { Eye, MoreVertical, Plus, Printer, RefreshCcw } from "react-feather"
 import {
 	Card,
 	CardHeader,
@@ -11,37 +11,21 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "reactstrap"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ChangeStatusModal from "./modals/ChangeStatusModal"
 import DetailsModal from "./modals/DetailsModal"
-
-const sampleData = [
-	{
-		id: 1,
-		name: "محمدرضا همافر",
-		mobile: "09123456789",
-		status: 1, // 0 is for not_recieved, 1 is for pending and 2 is for recieved
-	},
-	{
-		id: 2,
-		name: "پارسا همافر",
-		mobile: "09129876543",
-		status: 2, // 0 is for not_recieved, 1 is for pending and 2 is for recieved
-	},
-	{
-		id: 3,
-		name: "محمد مهدی شکرانی",
-		mobile: "09120369456",
-		status: 0, // 0 is for not_recieved, 1 is for pending and 2 is for recieved
-	},
-]
+import server, {
+	handleError,
+	handleSuccess,
+	showLoader,
+} from "../../../../utility/server"
 
 const StatusBadge = ({ status }) => {
 	switch (status) {
 		case 0:
 			return (
 				<Badge color="danger" pill>
-					تحویل داده نشده
+					سفارش خالی
 				</Badge>
 			)
 		case 1:
@@ -70,10 +54,53 @@ const OrdersList = () => {
 	const [statusModal, setStatusModal] = useState(false)
 	const [detailsModal, setDetailsModal] = useState(false)
 	const [selectedOrder, setSelectedOrder] = useState({})
+	const [orders, setOrders] = useState([])
+	const [reload, setReload] = useState(false)
 
 	// ** Functions
 	const toggleStatusModal = () => setStatusModal(!statusModal)
 	const toggleDetailsModal = () => setDetailsModal(!detailsModal)
+	const toggleReload = () => setReload(!reload)
+	const getOrders = async () => {
+		showLoader(true)
+		await server
+			.get("/order/all")
+			.then(async (res) => {
+				const orders = res?.data?.orders
+				const orderList = []
+				orders?.map((order) => {
+					let status = 0
+					let foundOrderItem = order?.OrderItems?.find(
+						(item) => item?.Status != "paid",
+					)
+					if (foundOrderItem != null) {
+						status = 1
+					} else {
+						status = 2
+					}
+					if (order?.OrderItems?.length == 0) {
+						status = 0
+					}
+					orderList.push({
+						id: order?.Id,
+						name: order?.CustomerName,
+						mobile: order?.PhoneNumber,
+						specialId: order?.SpecialId,
+						hasOrderItems: () => order?.OrderItems?.length > 0,
+						orderItems: order.OrderItems,
+						status,
+					})
+				})
+				setOrders(orderList.reverse())
+
+				showLoader(false)
+			})
+			.catch(() => handleError("هطایی در دریافت سفارشات رخ داده است"))
+	}
+
+	useEffect(async () => {
+		await getOrders()
+	}, [reload])
 
 	return (
 		<>
@@ -100,11 +127,12 @@ const OrdersList = () => {
 								<th>نام مشتری</th>
 								<th>شماره تماس</th>
 								<th>وضعیت تحویل</th>
+								<th>کد رهگیری</th>
 								<th>اقدامات</th>
 							</tr>
 						</thead>
 						<tbody>
-							{sampleData.map((item, index) => (
+							{orders.map((item, index) => (
 								<tr key={item.id}>
 									<td>{index + 1}</td>
 									<td>{item.name}</td>
@@ -112,6 +140,7 @@ const OrdersList = () => {
 									<td>
 										<StatusBadge status={item.status} />
 									</td>
+									<td>{item.specialId}</td>
 									<td>
 										<UncontrolledDropdown direction="left">
 											<DropdownToggle tag="div" className="btn btn-sm">
@@ -119,6 +148,7 @@ const OrdersList = () => {
 											</DropdownToggle>
 											<DropdownMenu>
 												<DropdownItem
+													hidden={!item.hasOrderItems()}
 													className="w-100"
 													onClick={() => {
 														setSelectedOrder(item)
@@ -128,6 +158,7 @@ const OrdersList = () => {
 													تغییر وضعیت سفارش
 												</DropdownItem>
 												<DropdownItem
+													hidden={!item.hasOrderItems()}
 													className="w-100"
 													onClick={() => {
 														setSelectedOrder(item)
@@ -135,6 +166,16 @@ const OrdersList = () => {
 													}}>
 													<Eye size={16} className="mr-50" />
 													مشاهده جزییات
+												</DropdownItem>
+												<DropdownItem
+													hidden={item.hasOrderItems()}
+													className="w-100"
+													onClick={() => {
+														setSelectedOrder(item)
+														toggleDetailsModal()
+													}}>
+													<Plus size={16} className="mr-50" />
+													افزودن آیتم به سفارش
 												</DropdownItem>
 											</DropdownMenu>
 										</UncontrolledDropdown>
