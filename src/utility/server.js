@@ -15,9 +15,7 @@ const localUrl = "http://localhost:8000/api/v1"
 const server = axios.create({
 	baseURL: serverUrl,
 	headers: {
-		Authorization: notAuthorized()
-			? ""
-			: `Bearer ${localStorage.getItem("token")}`,
+		Authorization: `Bearer ${localStorage.getItem("token")}`,
 	},
 })
 
@@ -48,6 +46,14 @@ export const handleSuccess = async (msg) => {
 			confirmButton: "btn btn-primary",
 		},
 		buttonsStyling: false,
+	})
+}
+
+export const checkAuth = async () => {
+	server.get("/auth/check").catch(async () => {
+		window.location.replace("/login")
+		localStorage.clear()
+		await handleError("جهت دسترسی به پنل وارد شوید")
 	})
 }
 

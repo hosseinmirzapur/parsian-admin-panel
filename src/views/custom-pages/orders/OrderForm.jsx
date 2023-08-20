@@ -4,7 +4,9 @@ import server, {
 	handleError,
 	handleSuccess,
 	showLoader,
+	checkAuth,
 } from "../../../utility/server"
+import { useEffect } from "react"
 
 const OrderForm = () => {
 	const initialValues = {
@@ -44,6 +46,10 @@ const OrderForm = () => {
 			})
 		setSubmitting(false)
 	}
+
+	useEffect(() => {
+		checkAuth()
+	}, [])
 
 	return (
 		<>

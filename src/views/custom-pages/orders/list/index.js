@@ -1,4 +1,11 @@
-import { Eye, MoreVertical, Plus, Printer, RefreshCcw } from "react-feather"
+import {
+	Eye,
+	MoreVertical,
+	Plus,
+	Printer,
+	RefreshCcw,
+	Search,
+} from "react-feather"
 import {
 	Card,
 	CardHeader,
@@ -10,15 +17,18 @@ import {
 	DropdownToggle,
 	DropdownMenu,
 	DropdownItem,
+	Input,
 } from "reactstrap"
 import { useEffect, useState } from "react"
 import ChangeStatusModal from "./modals/ChangeStatusModal"
 import DetailsModal from "./modals/DetailsModal"
 import server, {
+	checkAuth,
 	handleError,
 	handleSuccess,
 	showLoader,
 } from "../../../../utility/server"
+import { useHistory } from "react-router-dom"
 
 const StatusBadge = ({ status }) => {
 	switch (status) {
@@ -51,73 +61,154 @@ const StatusBadge = ({ status }) => {
 
 const OrdersList = () => {
 	// ** Variables
+	const [search, setSearch] = useState("")
+	const [removeSearch, setRemoveSearch] = useState(false)
 	const [statusModal, setStatusModal] = useState(false)
 	const [detailsModal, setDetailsModal] = useState(false)
 	const [selectedOrder, setSelectedOrder] = useState({})
 	const [orders, setOrders] = useState([])
 	const [reload, setReload] = useState(false)
+	const history = useHistory()
 
 	// ** Functions
 	const toggleStatusModal = () => setStatusModal(!statusModal)
 	const toggleDetailsModal = () => setDetailsModal(!detailsModal)
 	const toggleReload = () => setReload(!reload)
+	const toggleRemoveSearch = () => setRemoveSearch(!removeSearch)
+	const fillSearch = (e) => setSearch(e.target.value)
+
+	const formatedOrders = (orders) => {
+		const orderList = []
+
+		orders?.map((order) => {
+			let status = 0
+			let foundOrderItem = order?.OrderItems?.find(
+				(item) => item?.Status != "paid",
+			)
+			if (foundOrderItem != null) {
+				status = 1
+			} else {
+				status = 2
+			}
+			if (order?.OrderItems?.length == 0) {
+				status = 0
+			}
+			orderList.push({
+				id: order?.Id,
+				name: order?.CustomerName,
+				mobile: order?.PhoneNumber,
+				specialId: order?.SpecialId,
+				hasOrderItems: () => order?.OrderItems?.length > 0,
+				orderItems: order.OrderItems,
+				status,
+			})
+		})
+
+		return orderList.reverse()
+	}
+
+	const formatOneOrder = (order) => {
+		const orderList = []
+
+		let status = 0
+		let foundOrderItem = order?.OrderItems?.find(
+			(item) => item?.Status != "paid",
+		)
+		if (foundOrderItem != null) {
+			status = 1
+		} else {
+			status = 2
+		}
+		if (order?.OrderItems?.length == 0) {
+			status = 0
+		}
+		orderList.push({
+			id: order?.Id,
+			name: order?.CustomerName,
+			mobile: order?.PhoneNumber,
+			specialId: order?.SpecialId,
+			hasOrderItems: () => order?.OrderItems?.length > 0,
+			orderItems: order.OrderItems,
+			status,
+		})
+
+		return orderList.reverse()
+	}
+
 	const getOrders = async () => {
 		showLoader(true)
 		await server
 			.get("/order/all")
 			.then(async (res) => {
 				const orders = res?.data?.orders
-				const orderList = []
-				orders?.map((order) => {
-					let status = 0
-					let foundOrderItem = order?.OrderItems?.find(
-						(item) => item?.Status != "paid",
-					)
-					if (foundOrderItem != null) {
-						status = 1
-					} else {
-						status = 2
-					}
-					if (order?.OrderItems?.length == 0) {
-						status = 0
-					}
-					orderList.push({
-						id: order?.Id,
-						name: order?.CustomerName,
-						mobile: order?.PhoneNumber,
-						specialId: order?.SpecialId,
-						hasOrderItems: () => order?.OrderItems?.length > 0,
-						orderItems: order.OrderItems,
-						status,
-					})
-				})
-				setOrders(orderList.reverse())
+
+				setOrders(formatedOrders(orders))
 
 				showLoader(false)
 			})
 			.catch(() => handleError("هطایی در دریافت سفارشات رخ داده است"))
 	}
 
+	const handleSearch = async () => {
+		showLoader(true)
+		server
+			.get(`/order/special/${search}`)
+			.then((res) => {
+				const order = res?.data?.order
+				setOrders(formatOneOrder(order))
+				showLoader(false)
+				toggleRemoveSearch()
+			})
+			.catch(() => handleError("سفارشی با این کد رهگیری یافت"))
+	}
+
 	useEffect(async () => {
+		await checkAuth()
 		await getOrders()
+		setRemoveSearch(false)
 	}, [reload])
 
 	return (
 		<>
 			<Card>
-				<CardHeader>
+				<CardHeader
+					className="d-flex justify-content-md-between"
+					style={{
+						gap: "20px",
+					}}>
 					<Button
 						color={"success"}
+						className={"d-flex align-items-center justify-content-center"}
 						style={{
-							display: "flex",
-							flexDirection: "row",
 							gap: "10px",
-							justifyContent: "center",
-							alignItems: "center",
 						}}>
 						<Printer size={15} />
-						پرینت سفارشات
+						خروجی اکسل
 					</Button>
+					<div
+						className="d-flex"
+						style={{
+							gap: "10px",
+						}}>
+						<Button
+							color="outline-danger"
+							onClick={toggleReload}
+							hidden={!removeSearch}>
+							مشاهده همه
+						</Button>
+						<Button
+							color="primary"
+							size="small"
+							disabled={search == ""}
+							onClick={handleSearch}>
+							<Search size={15} />
+						</Button>
+						<Input
+							type="search"
+							placeholder="جستجوی کد رهگیری"
+							onChange={fillSearch}
+						/>
+					</div>
 				</CardHeader>
 				<CardBody>
 					<Table responsive hover>
@@ -168,11 +259,9 @@ const OrdersList = () => {
 													مشاهده جزییات
 												</DropdownItem>
 												<DropdownItem
-													hidden={item.hasOrderItems()}
 													className="w-100"
 													onClick={() => {
-														setSelectedOrder(item)
-														toggleDetailsModal()
+														history.push(`/orders/${item.id}`)
 													}}>
 													<Plus size={16} className="mr-50" />
 													افزودن آیتم به سفارش

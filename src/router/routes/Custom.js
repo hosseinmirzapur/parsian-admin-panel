@@ -11,6 +11,11 @@ const CustomRoutes = [
 		component: lazy(() => import("../../views/custom-pages/orders/list")),
 		exact: true,
 	},
+	{
+		path: "/orders/:id",
+		component: lazy(() => import("../../views/custom-pages/order-items")),
+		exact: true,
+	},
 ]
 
 export default CustomRoutes

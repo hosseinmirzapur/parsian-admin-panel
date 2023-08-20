@@ -6,8 +6,6 @@ import { isUserLoggedIn } from "@utils"
 import { useLayout } from "@hooks/useLayout"
 import { useRouterTransition } from "@hooks/useRouterTransition"
 
-// ** Custom Components
-// import Spinner from '@components/spinner/Loading-spinner' // Uncomment if your require content fallback
 import LayoutWrapper from "@layouts/components/layout-wrapper"
 
 // ** Router Components
