@@ -4,7 +4,7 @@ const ShowOrderItemPic = ({ imageSrc, toggleModal, isOpen }) => {
 	return (
 		<Modal isOpen={isOpen} toggle={toggleModal} centered>
 			<ModalHeader toggle={toggleModal} />
-			<ModalBody>
+			<ModalBody className="d-flex justify-content-center align-items-center">
 				{imageSrc ? (
 					<img src={imageSrc} alt="عکس-سفارش" className="w-75" />
 				) : (

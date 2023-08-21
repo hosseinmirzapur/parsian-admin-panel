@@ -1,11 +1,4 @@
-import {
-	Eye,
-	MoreVertical,
-	Plus,
-	Printer,
-	RefreshCcw,
-	Search,
-} from "react-feather"
+import { Box, MoreVertical, Printer, Search } from "react-feather"
 import {
 	Card,
 	CardHeader,
@@ -20,12 +13,9 @@ import {
 	Input,
 } from "reactstrap"
 import { useEffect, useState } from "react"
-import ChangeStatusModal from "./modals/ChangeStatusModal"
-import DetailsModal from "./modals/DetailsModal"
 import server, {
 	checkAuth,
 	handleError,
-	handleSuccess,
 	showLoader,
 } from "../../../../utility/server"
 import { useHistory } from "react-router-dom"
@@ -63,16 +53,11 @@ const OrdersList = () => {
 	// ** Variables
 	const [search, setSearch] = useState("")
 	const [removeSearch, setRemoveSearch] = useState(false)
-	const [statusModal, setStatusModal] = useState(false)
-	const [detailsModal, setDetailsModal] = useState(false)
-	const [selectedOrder, setSelectedOrder] = useState({})
 	const [orders, setOrders] = useState([])
 	const [reload, setReload] = useState(false)
 	const history = useHistory()
 
 	// ** Functions
-	const toggleStatusModal = () => setStatusModal(!statusModal)
-	const toggleDetailsModal = () => setDetailsModal(!detailsModal)
 	const toggleReload = () => setReload(!reload)
 	const toggleRemoveSearch = () => setRemoveSearch(!removeSearch)
 	const fillSearch = (e) => setSearch(e.target.value)
@@ -239,32 +224,12 @@ const OrdersList = () => {
 											</DropdownToggle>
 											<DropdownMenu>
 												<DropdownItem
-													hidden={!item.hasOrderItems()}
-													className="w-100"
-													onClick={() => {
-														setSelectedOrder(item)
-														toggleStatusModal()
-													}}>
-													<RefreshCcw size={16} className="mr-50" />
-													تغییر وضعیت سفارش
-												</DropdownItem>
-												<DropdownItem
-													hidden={!item.hasOrderItems()}
-													className="w-100"
-													onClick={() => {
-														setSelectedOrder(item)
-														toggleDetailsModal()
-													}}>
-													<Eye size={16} className="mr-50" />
-													مشاهده جزییات
-												</DropdownItem>
-												<DropdownItem
 													className="w-100"
 													onClick={() => {
 														history.push(`/orders/${item.id}`)
 													}}>
-													<Plus size={16} className="mr-50" />
-													افزودن آیتم به سفارش
+													<Box size={16} className="mr-50" />
+													آیتم های سفارش
 												</DropdownItem>
 											</DropdownMenu>
 										</UncontrolledDropdown>
@@ -275,16 +240,6 @@ const OrdersList = () => {
 					</Table>
 				</CardBody>
 			</Card>
-			<ChangeStatusModal
-				isOpen={statusModal}
-				toggleOpen={toggleStatusModal}
-				order={selectedOrder}
-			/>
-			<DetailsModal
-				isOpen={detailsModal}
-				order={selectedOrder}
-				toggleOpen={toggleDetailsModal}
-			/>
 		</>
 	)
 }

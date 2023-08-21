@@ -78,6 +78,7 @@ const Login = (props) => {
 					localStorage.setItem("token", res.data.token)
 					dispatch(handleLogin(data))
 					history.push("/dashboard")
+					window.location.reload()
 					toast.success(
 						<ToastContent name={data.Username} role={data.Role} />,
 						{ transition: Slide, hideProgressBar: true, autoClose: 2000 },

@@ -24,13 +24,19 @@ import {
 	Card,
 	CardBody,
 } from "reactstrap"
-import { MoreVertical, Trash2, Edit, RefreshCcw, Eye } from "react-feather"
+import { MoreVertical, Trash2, Edit, Eye } from "react-feather"
 import ShowOrderItemPic from "./modals/ShowOrderItemPic"
+import EditModal from "./modals/EditModal"
+import CreateModal from "./modals/CreateModal"
+import DeleteModal from "./modals/DeleteModal"
 
 const OrderItemPage = () => {
 	// ** Variables
 	const [reload, setReload] = useState(false)
 	const [orderItemPic, setOrderItemPic] = useState(false)
+	const [editModal, setEditModal] = useState(false)
+	const [deleteModal, setDeleteModal] = useState(false)
+	const [createModal, setCreateModal] = useState(false)
 	const [order, setOrder] = useState({})
 	const [selectedItem, setSelectedItem] = useState({})
 	const { id } = useParams()
@@ -38,6 +44,9 @@ const OrderItemPage = () => {
 	// ** Functions
 	const toggleReload = () => setReload(!reload)
 	const toggleOrderItemPic = () => setOrderItemPic(!orderItemPic)
+	const toggleEditModal = () => setEditModal(!editModal)
+	const toggleDeleteModal = () => setDeleteModal(!deleteModal)
+	const toggleCreateModal = () => setCreateModal(!createModal)
 	const select = (item) => setSelectedItem(item)
 
 	const fetchOrder = async () => {
@@ -82,10 +91,17 @@ const OrderItemPage = () => {
 			<Card>
 				<CardHeader className="d-flex justify-content-between">
 					<h3>{order?.customerName || "---"}</h3>
-					<Button color="primary">افزودن آیتم جدید</Button>
+					<Button color="primary" onClick={toggleCreateModal}>
+						افزودن آیتم جدید
+					</Button>
 				</CardHeader>
 				<CardBody>
-					<Table hover responsive>
+					<Table
+						hover
+						style={{
+							margin: "0 0 100px 0",
+						}}
+						responsive>
 						<thead>
 							<tr>
 								<th>#</th>
@@ -115,10 +131,6 @@ const OrderItemPage = () => {
 													<MoreVertical size={14} className="cursor-pointer" />
 												</DropdownToggle>
 												<DropdownMenu>
-													<DropdownItem className="w-100">
-														<RefreshCcw size={16} className="mr-50" />
-														تغییر وضعیت
-													</DropdownItem>
 													<DropdownItem
 														className="w-100"
 														onClick={() => {
@@ -128,13 +140,23 @@ const OrderItemPage = () => {
 														<Eye size={16} className="mr-50" />
 														مشاهده تصویر
 													</DropdownItem>
-													<DropdownItem className="w-100">
-														<Trash2 size={16} className="mr-50" />
-														حذف
-													</DropdownItem>
-													<DropdownItem className="w-100">
+													<DropdownItem
+														className="w-100"
+														onClick={() => {
+															select(item)
+															toggleEditModal()
+														}}>
 														<Edit size={16} className="mr-50" />
 														ویرایش
+													</DropdownItem>
+													<DropdownItem
+														className="w-100"
+														onClick={() => {
+															select(item)
+															toggleDeleteModal()
+														}}>
+														<Trash2 size={16} className="mr-50" />
+														حذف
 													</DropdownItem>
 												</DropdownMenu>
 											</UncontrolledDropdown>
@@ -154,6 +176,24 @@ const OrderItemPage = () => {
 						imageSrc={selectedItem.FilePath}
 						isOpen={orderItemPic}
 						toggleModal={toggleOrderItemPic}
+					/>
+					<EditModal
+						isOpen={editModal}
+						toggleOpen={toggleEditModal}
+						item={selectedItem}
+						onSuccess={toggleReload}
+					/>
+					<CreateModal
+						isOpen={createModal}
+						onSuccess={toggleReload}
+						orderId={id}
+						toggleOpen={toggleCreateModal}
+					/>
+					<DeleteModal
+						isOpen={deleteModal}
+						item={selectedItem}
+						onSuccess={toggleReload}
+						toggleOpen={toggleDeleteModal}
 					/>
 				</CardBody>
 			</Card>
