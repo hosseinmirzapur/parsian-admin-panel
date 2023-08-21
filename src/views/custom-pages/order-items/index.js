@@ -49,6 +49,32 @@ const OrderItemPage = () => {
 	const toggleCreateModal = () => setCreateModal(!createModal)
 	const select = (item) => setSelectedItem(item)
 
+	const handleTestType = (testType) => {
+		switch (testType) {
+			case "analyze":
+				return "آنالیز"
+			case "hardness":
+				return "سختی"
+			default:
+				return ""
+		}
+	}
+
+	const handleStatus = (status) => {
+		switch (status) {
+			case "pending":
+				return "در حال بررسی"
+			case "partial":
+				return "پرداخت جزئی"
+			case "office":
+				return "حساب دفتری"
+			case "paid":
+				return "پرداخت شده"
+			default:
+				return ""
+		}
+	}
+
 	const fetchOrder = async () => {
 		showLoader(true)
 		await server
@@ -122,9 +148,9 @@ const OrderItemPage = () => {
 										<td>{item.Name}</td>
 										<td>{item.AllowSandPaper ? "دارد" : "ندارد"}</td>
 										<td>{item.AllowDestruction ? "دارد" : "ندارد"}</td>
-										<td>{item.TestType}</td>
+										<td>{handleTestType(item?.TestType)}</td>
 										<td>{item.Quantity}</td>
-										<td>{item.Status}</td>
+										<td>{handleStatus(item?.Status)}</td>
 										<td>
 											<UncontrolledDropdown direction="left">
 												<DropdownToggle tag="div" className="btn btn-sm">
