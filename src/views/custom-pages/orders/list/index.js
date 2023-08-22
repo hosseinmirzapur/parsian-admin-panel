@@ -1,4 +1,4 @@
-import { Box, MoreVertical, Printer, Search } from "react-feather"
+import { Box, MoreVertical, Printer, Search, Trash2 } from "react-feather"
 import {
 	Card,
 	CardHeader,
@@ -19,6 +19,7 @@ import server, {
 	showLoader,
 } from "../../../../utility/server"
 import { useHistory } from "react-router-dom"
+import DeleteModal from "../../order-items/modals/DeleteModal"
 
 const StatusBadge = ({ status }) => {
 	switch (status) {
@@ -54,14 +55,17 @@ const OrdersList = () => {
 	const [search, setSearch] = useState("")
 	const [removeSearch, setRemoveSearch] = useState(false)
 	const [orders, setOrders] = useState([])
+	const [selected, setSelected] = useState({})
+	const [deleteModal, setDeleteModal] = useState(false)
 	const [reload, setReload] = useState(false)
 	const history = useHistory()
 
 	// ** Functions
 	const toggleReload = () => setReload(!reload)
 	const toggleRemoveSearch = () => setRemoveSearch(!removeSearch)
+	const toggleDeleteModal = () => setDeleteModal(!deleteModal)
 	const fillSearch = (e) => setSearch(e.target.value)
-
+	const select = (item) => setSelected(item)
 	const formatedOrders = (orders) => {
 		const orderList = []
 
@@ -231,6 +235,15 @@ const OrdersList = () => {
 													<Box size={16} className="mr-50" />
 													آیتم های سفارش
 												</DropdownItem>
+												<DropdownItem
+													className="w-100"
+													onClick={() => {
+														select(item)
+														toggleDeleteModal()
+													}}>
+													<Trash2 size={16} className="mr-50" />
+													حذف
+												</DropdownItem>
 											</DropdownMenu>
 										</UncontrolledDropdown>
 									</td>
@@ -238,6 +251,13 @@ const OrdersList = () => {
 							))}
 						</tbody>
 					</Table>
+					<DeleteModal
+						endpoint={"/order/delete"}
+						item={selected}
+						isOpen={deleteModal}
+						onSuccess={toggleReload}
+						toggleOpen={toggleDeleteModal}
+					/>
 				</CardBody>
 			</Card>
 		</>

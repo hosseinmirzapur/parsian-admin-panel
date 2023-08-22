@@ -109,6 +109,7 @@ const EditModal = ({ isOpen, toggleOpen, item, onSuccess }) => {
 						<option value="">موردی را انتخاب کنید</option>
 						<option value="analyze">آنالیز</option>
 						<option value="hardness">سختی</option>
+						<option value="both">هر دو</option>
 					</Input>
 				</div>
 				<div>

@@ -24,10 +24,12 @@ const CreateModal = ({ isOpen, toggleOpen, orderId, onSuccess }) => {
 	const [allowDestruction, setAllowDestruction] = useState(false)
 	const [testType, setTestType] = useState("")
 	const [quantity, setQuantity] = useState(0)
+	const [hasPic, setHasPic] = useState(false)
 	const [image, setImage] = useState(null)
 	const [imagePreview, setImagePreview] = useState("")
 
 	// ** Functions
+	const toggleHasPic = () => setHasPic(!hasPic)
 	const reloadInputs = () => {
 		setStatus("")
 		setName("")
@@ -38,7 +40,6 @@ const CreateModal = ({ isOpen, toggleOpen, orderId, onSuccess }) => {
 		setImage(null)
 		setImagePreview("")
 	}
-
 	const fillImage = (e) => {
 		if (e.target.files[0]) {
 			const reader = new FileReader()
@@ -56,13 +57,7 @@ const CreateModal = ({ isOpen, toggleOpen, orderId, onSuccess }) => {
 	}
 
 	const ifNotReady = () => {
-		return (
-			status == "" ||
-			name == "" ||
-			testType == "" ||
-			quantity == 0 ||
-			image == null
-		)
+		return status == "" || name == "" || testType == "" || quantity == 0
 	}
 
 	const handleAction = async () => {
@@ -74,7 +69,9 @@ const CreateModal = ({ isOpen, toggleOpen, orderId, onSuccess }) => {
 		fd.append("allow_destruction", +allowDestruction)
 		fd.append("test_type", testType)
 		fd.append("quantity", quantity)
-		fd.append("image", image)
+		if (image != null) {
+			fd.append("image", image)
+		}
 
 		await server
 			.post(`/oi/create/${orderId}`, fd)
@@ -127,6 +124,7 @@ const CreateModal = ({ isOpen, toggleOpen, orderId, onSuccess }) => {
 						<option value="">موردی را انتخاب کنید</option>
 						<option value="analyze">آنالیز</option>
 						<option value="hardness">سختی</option>
+						<option value="both">هر دو</option>
 					</Input>
 				</div>
 				<div>
@@ -146,25 +144,39 @@ const CreateModal = ({ isOpen, toggleOpen, orderId, onSuccess }) => {
 				</div>
 
 				<div>
-					<Label>تصویر آیتم</Label>
+					<Label>شامل عکس میشود؟</Label>
 					<CustomInput
-						type="file"
-						id="orderItemImage"
-						onChange={fillImage}
-						accept="image/*"
+						type="checkbox"
+						onChange={toggleHasPic}
+						checked={hasPic}
+						id="haspic"
 					/>
 				</div>
-				{image && (
-					<div
-						className="d-flex flex-column justify-content-center align-items-center"
-						style={{
-							gap: "10px",
-						}}>
-						<img src={imagePreview} alt="" className="w-75" />
-						<Button color="danger" onClick={clearImage}>
-							حذف عکس
-						</Button>
-					</div>
+
+				{hasPic && (
+					<>
+						<div>
+							<Label>تصویر آیتم</Label>
+							<CustomInput
+								type="file"
+								id="orderItemImage"
+								onChange={fillImage}
+								accept="image/*"
+							/>
+						</div>
+						{image && (
+							<div
+								className="d-flex flex-column justify-content-center align-items-center"
+								style={{
+									gap: "10px",
+								}}>
+								<img src={imagePreview} alt="" className="w-75" />
+								<Button color="danger" onClick={clearImage}>
+									حذف عکس
+								</Button>
+							</div>
+						)}
+					</>
 				)}
 			</ModalBody>
 			<ModalFooter className="d-flex justify-content-around">

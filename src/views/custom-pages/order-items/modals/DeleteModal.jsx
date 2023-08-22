@@ -1,14 +1,4 @@
-import { useState } from "react"
-import {
-	Modal,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
-	Button,
-	Label,
-	Input,
-	CustomInput,
-} from "reactstrap"
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap"
 
 import server, {
 	handleError,
@@ -16,14 +6,14 @@ import server, {
 	showLoader,
 } from "../../../../utility/server"
 
-const DeleteModal = ({ isOpen, toggleOpen, item, onSuccess }) => {
+const DeleteModal = ({ isOpen, toggleOpen, item, endpoint, onSuccess }) => {
 	const handleAction = async () => {
 		showLoader(true)
 
 		await server
-			.delete(`/oi/delete/${item?.Id}`)
+			.delete(`${endpoint}/${item?.Id}`)
 			.then(async () => {
-				await handleSuccess("آیتم مورد نظر با موفقیت حذف شد")
+				await handleSuccess("این مورد با موفقیت حذف شد")
 				toggleOpen()
 				onSuccess()
 			})

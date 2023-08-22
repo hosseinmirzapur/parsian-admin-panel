@@ -55,6 +55,8 @@ const OrderItemPage = () => {
 				return "آنالیز"
 			case "hardness":
 				return "سختی"
+			case "both":
+				return "هر دو"
 			default:
 				return ""
 		}
@@ -217,6 +219,7 @@ const OrderItemPage = () => {
 					/>
 					<DeleteModal
 						isOpen={deleteModal}
+						endpoint={"/oi/delete"}
 						item={selectedItem}
 						onSuccess={toggleReload}
 						toggleOpen={toggleDeleteModal}
