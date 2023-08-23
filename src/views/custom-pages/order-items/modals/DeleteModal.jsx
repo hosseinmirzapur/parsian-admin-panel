@@ -6,12 +6,20 @@ import server, {
 	showLoader,
 } from "../../../../utility/server"
 
-const DeleteModal = ({ isOpen, toggleOpen, item, endpoint, onSuccess }) => {
+const DeleteModal = ({
+	isOpen,
+	toggleOpen,
+	item,
+	endpoint,
+	onSuccess,
+	isOi,
+}) => {
 	const handleAction = async () => {
 		showLoader(true)
 
+		const itemId = isOi ? item?.Id : item?.id
 		await server
-			.delete(`${endpoint}/${item?.Id}`)
+			.delete(`${endpoint}/${itemId}`)
 			.then(async () => {
 				await handleSuccess("این مورد با موفقیت حذف شد")
 				toggleOpen()

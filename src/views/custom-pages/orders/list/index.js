@@ -257,6 +257,7 @@ const OrdersList = () => {
 						isOpen={deleteModal}
 						onSuccess={toggleReload}
 						toggleOpen={toggleDeleteModal}
+						isOi={false}
 					/>
 				</CardBody>
 			</Card>

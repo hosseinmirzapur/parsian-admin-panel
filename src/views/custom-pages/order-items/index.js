@@ -223,6 +223,7 @@ const OrderItemPage = () => {
 						item={selectedItem}
 						onSuccess={toggleReload}
 						toggleOpen={toggleDeleteModal}
+						isOi
 					/>
 				</CardBody>
 			</Card>
