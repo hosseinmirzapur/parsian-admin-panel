@@ -49,7 +49,7 @@ const EditModal = ({ isOpen, toggleOpen, item, onSuccess }) => {
 			allow_sand_paper: allowSandPaper,
 			allow_destruction: allowDestruction,
 			test_type: testType == "" ? item?.TestType : testType,
-			quantity: quantity == 0 ? item?.Quantity : quantity,
+			quantity: quantity == 0 ? +item?.Quantity : +quantity,
 		}
 		await server
 			.put(`/oi/update/${item?.Id}`, data)
