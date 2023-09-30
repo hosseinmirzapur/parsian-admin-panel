@@ -9,7 +9,7 @@ const notAuthorized = () => {
 	)
 }
 
-const serverUrl = "https://parsian.iran.liara.run/api/v1"
+const serverUrl = "https://parsian.iran.liara.run/api"
 const localUrl = "http://localhost:8000/api/v1"
 
 const server = axios.create({

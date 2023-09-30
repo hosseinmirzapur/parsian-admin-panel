@@ -17,7 +17,7 @@ const DeleteModal = ({
 	const handleAction = async () => {
 		showLoader(true)
 
-		const itemId = isOi ? item?.Id : item?.id
+		const itemId = item?.id
 		await server
 			.delete(`${endpoint}/${itemId}`)
 			.then(async () => {

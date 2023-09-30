@@ -68,19 +68,17 @@ const Login = (props) => {
 	const handleSubmit = async (event, errors) => {
 		if (errors && !errors.length) {
 			await server
-				.post("/auth/login", { username: email, password })
+				.post("/admin/login", { username: email, password })
 				.then((res) => {
-					const data = {
-						...res.data.admin,
-						accessToken: res.data.token,
-						refreshToken: res.data.token,
-					}
-					localStorage.setItem("token", res.data.token)
+					const data = res.data
+					const token = data.token
+
+					localStorage.setItem("token", token)
 					dispatch(handleLogin(data))
 					history.push("/dashboard")
 					window.location.reload()
 					toast.success(
-						<ToastContent name={data.Username} role={data.Role} />,
+						<ToastContent name={data.admin.username} role={"ادمین کل"} />,
 						{ transition: Slide, hideProgressBar: true, autoClose: 2000 },
 					)
 				})

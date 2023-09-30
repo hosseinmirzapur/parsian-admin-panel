@@ -4,7 +4,7 @@ export const handleLogin = (data) => {
 		dispatch({ type: "LOGIN", data })
 
 		// ** Add to user to localStorage
-		localStorage.setItem("userData", JSON.stringify(data))
+		localStorage.setItem("userData", JSON.stringify(data.admin))
 	}
 }
 

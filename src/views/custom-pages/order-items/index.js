@@ -3,16 +3,10 @@ import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 
 // ** Utils
-import server, {
-	checkAuth,
-	handleError,
-	handleSuccess,
-	showLoader,
-} from "../../../utility/server"
+import server, { handleError, showLoader } from "../../../utility/server"
 
 // UI imports
 import {
-	CardHeader,
 	Table,
 	UncontrolledDropdown,
 	DropdownToggle,
@@ -20,14 +14,12 @@ import {
 	DropdownItem,
 	Breadcrumb,
 	BreadcrumbItem,
-	Button,
 	Card,
 	CardBody,
 } from "reactstrap"
 import { MoreVertical, Trash2, Edit, Eye } from "react-feather"
 import ShowOrderItemPic from "./modals/ShowOrderItemPic"
 import EditModal from "./modals/EditModal"
-import CreateModal from "./modals/CreateModal"
 import DeleteModal from "./modals/DeleteModal"
 
 const OrderItemPage = () => {
@@ -36,7 +28,6 @@ const OrderItemPage = () => {
 	const [orderItemPic, setOrderItemPic] = useState(false)
 	const [editModal, setEditModal] = useState(false)
 	const [deleteModal, setDeleteModal] = useState(false)
-	const [createModal, setCreateModal] = useState(false)
 	const [order, setOrder] = useState({})
 	const [selectedItem, setSelectedItem] = useState({})
 	const { id } = useParams()
@@ -46,16 +37,15 @@ const OrderItemPage = () => {
 	const toggleOrderItemPic = () => setOrderItemPic(!orderItemPic)
 	const toggleEditModal = () => setEditModal(!editModal)
 	const toggleDeleteModal = () => setDeleteModal(!deleteModal)
-	const toggleCreateModal = () => setCreateModal(!createModal)
 	const select = (item) => setSelectedItem(item)
 
 	const handleTestType = (testType) => {
 		switch (testType) {
-			case "analyze":
+			case "ANALYZE":
 				return "آنالیز"
-			case "hardness":
+			case "HARDNESS":
 				return "سختی"
-			case "both":
+			case "BOTH":
 				return "هر دو"
 			default:
 				return ""
@@ -64,13 +54,13 @@ const OrderItemPage = () => {
 
 	const handleStatus = (status) => {
 		switch (status) {
-			case "pending":
+			case "PENDING":
 				return "در حال بررسی"
-			case "partial":
+			case "PARTIAL":
 				return "پرداخت جزئی"
-			case "office":
+			case "OFFICE":
 				return "حساب دفتری"
-			case "paid":
+			case "PAID":
 				return "پرداخت شده"
 			default:
 				return ""
@@ -80,16 +70,20 @@ const OrderItemPage = () => {
 	const fetchOrder = async () => {
 		showLoader(true)
 		await server
-			.get(`/order/${id}`)
+			.get(`/order/${id}`, {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
+				},
+			})
 			.then(async (res) => {
 				const serverOrder = res?.data?.order
 				const formattedOrder = {
-					id: serverOrder?.Id,
-					createdAt: serverOrder?.CreatedAt,
-					orderItems: serverOrder?.OrderItems,
-					phoneNumber: serverOrder?.PhoneNumber,
-					customerName: serverOrder?.CustomerName,
-					specialId: serverOrder?.SpecialId,
+					id: serverOrder?.id,
+					createdAt: serverOrder?.created_at,
+					orderItems: serverOrder?.order_items,
+					phoneNumber: serverOrder?.mobile,
+					customerName: serverOrder?.customer_name,
+					specialId: serverOrder?.special_id,
 				}
 
 				setOrder(formattedOrder)
@@ -101,7 +95,6 @@ const OrderItemPage = () => {
 	}
 
 	useEffect(async () => {
-		await checkAuth()
 		await fetchOrder()
 	}, [reload])
 	return (
@@ -114,15 +107,11 @@ const OrderItemPage = () => {
 					className="text-primary">
 					سفارشات
 				</BreadcrumbItem>
-				<BreadcrumbItem>{order?.specialId || "---"}</BreadcrumbItem>
+				<BreadcrumbItem>
+					<span>{order?.specialId}</span>
+				</BreadcrumbItem>
 			</Breadcrumb>
 			<Card>
-				<CardHeader className="d-flex justify-content-between">
-					<h3>{order?.customerName || "---"}</h3>
-					<Button color="primary" onClick={toggleCreateModal}>
-						افزودن آیتم جدید
-					</Button>
-				</CardHeader>
 				<CardBody>
 					<Table
 						hover
@@ -147,12 +136,12 @@ const OrderItemPage = () => {
 								order?.orderItems?.map((item, index) => (
 									<tr key={index}>
 										<td>{index + 1}</td>
-										<td>{item.Name}</td>
-										<td>{item.AllowSandPaper ? "دارد" : "ندارد"}</td>
-										<td>{item.AllowDestruction ? "دارد" : "ندارد"}</td>
-										<td>{handleTestType(item?.TestType)}</td>
-										<td>{item.Quantity}</td>
-										<td>{handleStatus(item?.Status)}</td>
+										<td>{item.name}</td>
+										<td>{item.sand_paper ? "دارد" : "ندارد"}</td>
+										<td>{item.destruction ? "دارد" : "ندارد"}</td>
+										<td>{handleTestType(item?.test_type)}</td>
+										<td>{item.quantity}</td>
+										<td>{handleStatus(item?.status)}</td>
 										<td>
 											<UncontrolledDropdown direction="left">
 												<DropdownToggle tag="div" className="btn btn-sm">
@@ -163,7 +152,7 @@ const OrderItemPage = () => {
 														className="w-100"
 														onClick={() => {
 															select(item)
-															toggleOrderItemPic(item.ImageSrc)
+															toggleOrderItemPic(item.image)
 														}}>
 														<Eye size={16} className="mr-50" />
 														مشاهده تصویر
@@ -201,7 +190,7 @@ const OrderItemPage = () => {
 						</tbody>
 					</Table>
 					<ShowOrderItemPic
-						imageSrc={selectedItem.FilePath}
+						imageSrc={selectedItem.image}
 						isOpen={orderItemPic}
 						toggleModal={toggleOrderItemPic}
 					/>
@@ -211,15 +200,10 @@ const OrderItemPage = () => {
 						item={selectedItem}
 						onSuccess={toggleReload}
 					/>
-					<CreateModal
-						isOpen={createModal}
-						onSuccess={toggleReload}
-						orderId={id}
-						toggleOpen={toggleCreateModal}
-					/>
+
 					<DeleteModal
 						isOpen={deleteModal}
-						endpoint={"/oi/delete"}
+						endpoint={"/order-item"}
 						item={selectedItem}
 						onSuccess={toggleReload}
 						toggleOpen={toggleDeleteModal}

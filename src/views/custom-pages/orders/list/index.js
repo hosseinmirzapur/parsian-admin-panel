@@ -13,11 +13,7 @@ import {
 	Input,
 } from "reactstrap"
 import { useEffect, useState } from "react"
-import server, {
-	checkAuth,
-	handleError,
-	showLoader,
-} from "../../../../utility/server"
+import server, { handleError, showLoader } from "../../../../utility/server"
 import { useHistory } from "react-router-dom"
 import DeleteModal from "../../order-items/modals/DeleteModal"
 
@@ -71,24 +67,28 @@ const OrdersList = () => {
 
 		orders?.map((order) => {
 			let status = 0
-			let foundOrderItem = order?.OrderItems?.find(
-				(item) => item?.Status != "paid",
-			)
-			if (foundOrderItem != null) {
-				status = 1
-			} else {
-				status = 2
-			}
-			if (order?.OrderItems?.length == 0) {
+
+			/**
+			 *  0 for empty order
+			 *  1 for not ready order
+			 *  2 for done
+			 */
+			if (order.order_items.length == 0) {
 				status = 0
+			} else if (order.status) {
+				status = 2
+			} else {
+				status = 1
 			}
+
 			orderList.push({
-				id: order?.Id,
-				name: order?.CustomerName,
-				mobile: order?.PhoneNumber,
-				specialId: order?.SpecialId,
-				hasOrderItems: () => order?.OrderItems?.length > 0,
-				orderItems: order.OrderItems,
+				id: order?.id,
+				name: order?.customer_name,
+				requester: order?.requester_name,
+				mobile: order?.mobile,
+				specialId: order?.special_id,
+				hasOrderItems: () => order?.order_items?.length > 0,
+				orderItems: order.order_items,
 				status,
 			})
 		})
@@ -100,24 +100,25 @@ const OrdersList = () => {
 		const orderList = []
 
 		let status = 0
-		let foundOrderItem = order?.OrderItems?.find(
-			(item) => item?.Status != "paid",
+		let foundOrderItem = order?.order_items?.find(
+			(item) => item?.status != "PAID",
 		)
 		if (foundOrderItem != null) {
 			status = 1
 		} else {
 			status = 2
 		}
-		if (order?.OrderItems?.length == 0) {
+		if (order?.order_items?.length == 0) {
 			status = 0
 		}
 		orderList.push({
-			id: order?.Id,
-			name: order?.CustomerName,
-			mobile: order?.PhoneNumber,
-			specialId: order?.SpecialId,
-			hasOrderItems: () => order?.OrderItems?.length > 0,
-			orderItems: order.OrderItems,
+			id: order?.id,
+			name: order?.customer_name,
+			requester: order?.requester_name,
+			mobile: order?.mobile,
+			specialId: order?.special_id,
+			hasOrderItems: () => order?.order_items?.length > 0,
+			orderItems: order.order_items,
 			status,
 		})
 
@@ -127,7 +128,11 @@ const OrdersList = () => {
 	const getOrders = async () => {
 		showLoader(true)
 		await server
-			.get("/order/all")
+			.get("/order", {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
+				},
+			})
 			.then(async (res) => {
 				const orders = res?.data?.orders
 
@@ -135,13 +140,17 @@ const OrdersList = () => {
 
 				showLoader(false)
 			})
-			.catch(() => handleError("هطایی در دریافت سفارشات رخ داده است"))
+			.catch(() => handleError("خطایی در دریافت سفارشات رخ داده است"))
 	}
 
 	const handleSearch = async () => {
 		showLoader(true)
 		server
-			.get(`/order/special/${search}`)
+			.get(`/order/special/${search}`, {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
+				},
+			})
 			.then((res) => {
 				const order = res?.data?.order
 				setOrders(formatOneOrder(order))
@@ -152,7 +161,6 @@ const OrdersList = () => {
 	}
 
 	useEffect(async () => {
-		await checkAuth()
 		await getOrders()
 		setRemoveSearch(false)
 	}, [reload])
@@ -165,7 +173,7 @@ const OrdersList = () => {
 					style={{
 						gap: "20px",
 					}}>
-					<Button
+					{/* <Button
 						color={"success"}
 						className={"d-flex align-items-center justify-content-center"}
 						style={{
@@ -173,7 +181,7 @@ const OrdersList = () => {
 						}}>
 						<Printer size={15} />
 						خروجی اکسل
-					</Button>
+					</Button> */}
 					<div
 						className="d-flex"
 						style={{
@@ -205,6 +213,7 @@ const OrdersList = () => {
 							<tr>
 								<th>#</th>
 								<th>نام مشتری</th>
+								<th>درخواست کننده</th>
 								<th>شماره تماس</th>
 								<th>وضعیت تحویل</th>
 								<th>کد رهگیری</th>
@@ -216,6 +225,7 @@ const OrdersList = () => {
 								<tr key={item.id}>
 									<td>{index + 1}</td>
 									<td>{item.name}</td>
+									<td>{item.requester}</td>
 									<td>{item.mobile}</td>
 									<td>
 										<StatusBadge status={item.status} />
@@ -252,7 +262,7 @@ const OrdersList = () => {
 						</tbody>
 					</Table>
 					<DeleteModal
-						endpoint={"/order/delete"}
+						endpoint={"/order"}
 						item={selected}
 						isOpen={deleteModal}
 						onSuccess={toggleReload}
